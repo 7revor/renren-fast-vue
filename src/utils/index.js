@@ -56,3 +56,33 @@ export function clearLoginInfo () {
   store.commit('resetStore')
   router.options.isAddDynamicMenuRoutes = false
 }
+
+/**
+ * 公司类型
+ */
+export const DeptType = {
+  /**
+   * 饲料公司
+   */
+  FEED: {name: '饲料公司', code: 1},
+  /**
+   * 运输公司
+   */
+  TRANSPORT: {name: '运输公司', code: 2},
+  /**
+   * 养殖公司
+   */
+  BREED: {name: '养殖公司', code: 3},
+  /**
+   * 加工公司
+   */
+  PROCESS: {name: '加工公司', code: 4},
+  /**
+   * 质检公司
+   */
+  QUALITY: {name: '质检公司', code: 5},
+  /**
+   * 销售公司
+   */
+  SALE: {name: '销售公司', code: 6}
+}
