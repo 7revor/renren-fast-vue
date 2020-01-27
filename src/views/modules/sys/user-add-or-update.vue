@@ -19,6 +19,9 @@
       <el-form-item label="手机号" prop="mobile">
         <el-input v-model="dataForm.mobile" placeholder="手机号"></el-input>
       </el-form-item>
+      <el-form-item label="员工信息" prop="mobile">
+        <staff-select v-model="dataForm.staffId"></staff-select>
+      </el-form-item>
       <el-form-item label="角色" size="mini" prop="roleIdList">
         <el-checkbox-group v-model="dataForm.roleIdList">
           <el-checkbox v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
@@ -40,7 +43,12 @@
 
 <script>
   import { isEmail, isMobile } from '@/utils/validate'
+  import staffSelect from '@/components/staffSelect'
+
   export default {
+    components: {
+      staffSelect
+    },
     data () {
       var validatePassword = (rule, value, callback) => {
         if (!this.dataForm.id && !/\S/.test(value)) {
@@ -84,7 +92,8 @@
           email: '',
           mobile: '',
           roleIdList: [],
-          status: 1
+          status: 1,
+          staffId: undefined
         },
         dataRule: {
           userName: [
@@ -135,6 +144,7 @@
                 this.dataForm.mobile = data.user.mobile
                 this.dataForm.roleIdList = data.user.roleIdList
                 this.dataForm.status = data.user.status
+                this.dataForm.staffId = data.user.staffId
               }
             })
           }
@@ -155,7 +165,8 @@
                 'email': this.dataForm.email,
                 'mobile': this.dataForm.mobile,
                 'status': this.dataForm.status,
-                'roleIdList': this.dataForm.roleIdList
+                'roleIdList': this.dataForm.roleIdList,
+                'staffId':this.dataForm.staffId
               })
             }).then(({data}) => {
               if (data && data.code === 0) {

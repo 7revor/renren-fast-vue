@@ -2,15 +2,8 @@
   <div class="mod-menu">
     <el-form :inline="true" :model="dataForm">
       <el-form-item>
-        <el-input v-model="query.name" class="query-input" placeholder="请输入单位名称"></el-input>
-        <el-select class="dept-select" v-model="query.functions" placeholder="部门职能">
-          <el-option
-                  v-for="item in options"
-                  :key="item.code"
-                  :label="item.name"
-                  :value="item.code">
-          </el-option>
-        </el-select>
+        <el-input v-model="query.name" class="query-input" placeholder="请输入姓名"></el-input>
+        <dept-select v-model="query.deptId"/>
         <el-button  @click="getDataList">查询</el-button>
         <el-button v-if="isAuth('sys:menu:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
       </el-form-item>
@@ -24,58 +17,72 @@
       <el-table-column
               prop="name"
               header-align="center"
-              min-width="150"
+              width="120"
               align="center"
-              label="名称" >
+              label="姓名" >
+      </el-table-column>
+      <el-table-column
+              prop="sex"
+              header-align="center"
+              align="center"
+              width="50"
+              label="性别">
+      </el-table-column>
+      <el-table-column
+              prop="birthday"
+              header-align="center"
+              align="center"
+              width="120"
+              label="出生日期">
+      </el-table-column>
+      <el-table-column
+              prop="sfid"
+              header-align="center"
+              align="center"
+              width="180"
+              label="身份证号">
+      </el-table-column>
+      <el-table-column
+              prop="deptName"
+              header-align="center"
+              align="center"
+              width="180"
+              label="隶属单位">
       </el-table-column>
       <el-table-column
               prop="code"
               header-align="center"
               align="center"
               width="120"
-              label="编码">
+              label="编号">
       </el-table-column>
       <el-table-column
-              header-align="center"
-              label="部门职能"
-              align="center">
-        <template slot-scope="scope">
-          <span> {{ getFunction(scope.row.functions) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-              prop="headMan"
+              prop="jobTime"
               header-align="center"
               align="center"
-              label="负责人">
+              width="120"
+              label="参加工作时间">
       </el-table-column>
       <el-table-column
               prop="tel"
               header-align="center"
               align="center"
+              width="120"
               label="联系电话">
       </el-table-column>
       <el-table-column
-              prop="address"
               header-align="center"
               align="center"
-              width="150"
-              :show-overflow-tooltip="true"
-              label="联系地址">
-      </el-table-column>
-      <el-table-column
-              prop="memo"
-              header-align="center"
-              align="center"
-              width="150"
-              :show-overflow-tooltip="true"
-              label="备注">
+              width="200"
+              label="用户名">
+        <template slot-scope="scope">
+          {{scope.row.username||'未绑定'}}
+        </template>
       </el-table-column>
       <el-table-column
               fixed="right"
               header-align="center"
               align="center"
-              width="150"
               label="操作">
         <template slot-scope="scope">
           <el-button v-if="isAuth('sys:menu:delete')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
@@ -84,15 +91,13 @@
       </el-table-column>
     </el-table>
     <!-- 弹窗, 新增 / 修改 -->
-    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <staff-edit v-if="addOrUpdateVisible" ref="StaffEdit" @refreshDataList="getDataList"></staff-edit>
   </div>
 </template>
 
 <script>
-  import AddOrUpdate from './add-or-update'
-import {DeptType} from '@/utils'
-  const options = Object.values(DeptType)
-options.unshift({name: '全部', code: 0})
+  import StaffEdit from './staff-edit'
+  import deptSelect from '@/components/deptSelect'
 export default {
     data () {
       return {
@@ -100,16 +105,15 @@ export default {
         dataList: [],
         dataListLoading: false,
         addOrUpdateVisible: false,
-        options,
         query: {
-          functions: 0,
           name: '',
-          identify: 'dept'
+          deptId: 0,
+          identify: 'staff'
         }
       }
     },
     components: {
-      AddOrUpdate
+      StaffEdit, deptSelect
     },
     activated () {
       this.getDataList()
@@ -125,19 +129,16 @@ export default {
             ...this.query
           })
         }).then(({data}) => {
+          console.log(data.list)
           this.dataList = data.list
           this.dataListLoading = false
         })
-      },
-      getFunction (functions) {
-        const type = options.find(t => t.code === parseInt(functions))
-        return type.name
       },
       // 新增 / 修改
       addOrUpdateHandle (id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id)
+          this.$refs.StaffEdit.init(id)
         })
       },
       // 删除
@@ -152,7 +153,7 @@ export default {
             method: 'post',
             data: {
               id: dept.id,
-              identify: 'dept'
+              identify: 'staff'
             }
           }).then(({data}) => {
             if (data && data.code === 0) {

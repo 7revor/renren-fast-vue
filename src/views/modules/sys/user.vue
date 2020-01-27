@@ -58,6 +58,14 @@
         </template>
       </el-table-column>
       <el-table-column
+              header-align="center"
+              align="center"
+              label="员工">
+        <template slot-scope="scope">
+          {{scope.row.staffName||'未绑定'}}
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="createTime"
         header-align="center"
         align="center"

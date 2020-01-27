@@ -3,14 +3,7 @@
     <el-form :inline="true" :model="dataForm">
       <el-form-item>
         <el-input v-model="query.name" class="query-input" placeholder="请输入单位名称"></el-input>
-        <el-select class="dept-select" v-model="query.functions" placeholder="部门职能">
-          <el-option
-                  v-for="item in options"
-                  :key="item.code"
-                  :label="item.name"
-                  :value="item.code">
-          </el-option>
-        </el-select>
+        <dept-select :filter="DeptType.FEED.code" v-model="query.deptId"/>
         <el-button  @click="getDataList">查询</el-button>
         <el-button v-if="isAuth('sys:menu:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
       </el-form-item>
@@ -24,58 +17,58 @@
       <el-table-column
               prop="name"
               header-align="center"
-              min-width="150"
+              width="150"
               align="center"
               label="名称" >
       </el-table-column>
       <el-table-column
-              prop="code"
+              prop="num"
+              header-align="center"
+              align="center"
+              width="150"
+              label="流水号">
+      </el-table-column>
+      <el-table-column
+              prop="component"
+              header-align="center"
+              label="营养成分"
+              width="200"
+              align="center">
+      </el-table-column>
+      <el-table-column
+              prop="exp"
+              header-align="center"
+              align="center"
+              width="200"
+              label="说明">
+      </el-table-column>
+      <el-table-column
+              prop="deptName"
+              header-align="center"
+              align="center"
+              width="200"
+              label="饲料厂">
+      </el-table-column>
+      <el-table-column
+              prop="creatorName"
               header-align="center"
               align="center"
               width="120"
-              label="编码">
-      </el-table-column>
-      <el-table-column
-              header-align="center"
-              label="部门职能"
-              align="center">
-        <template slot-scope="scope">
-          <span> {{ getFunction(scope.row.functions) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-              prop="headMan"
-              header-align="center"
-              align="center"
-              label="负责人">
-      </el-table-column>
-      <el-table-column
-              prop="tel"
-              header-align="center"
-              align="center"
-              label="联系电话">
-      </el-table-column>
-      <el-table-column
-              prop="address"
-              header-align="center"
-              align="center"
-              width="150"
               :show-overflow-tooltip="true"
-              label="联系地址">
+              label="创建人">
       </el-table-column>
       <el-table-column
-              prop="memo"
+              prop="modifiederName"
               header-align="center"
               align="center"
-              width="150"
+              width="120"
               :show-overflow-tooltip="true"
-              label="备注">
+              label="修改人">
       </el-table-column>
       <el-table-column
               fixed="right"
               header-align="center"
               align="center"
-              width="150"
               label="操作">
         <template slot-scope="scope">
           <el-button v-if="isAuth('sys:menu:delete')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
@@ -89,10 +82,9 @@
 </template>
 
 <script>
-  import AddOrUpdate from './add-or-update'
-import {DeptType} from '@/utils'
-  const options = Object.values(DeptType)
-options.unshift({name: '全部', code: 0})
+  import AddOrUpdate from './feed-edit'
+  import deptSelect from '@/components/deptSelect'
+  import {DeptType} from '@/utils'
 export default {
     data () {
       return {
@@ -100,16 +92,16 @@ export default {
         dataList: [],
         dataListLoading: false,
         addOrUpdateVisible: false,
-        options,
+        DeptType,
         query: {
-          functions: 0,
+          deptId: 0,
           name: '',
-          identify: 'dept'
+          identify: 'feed'
         }
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,deptSelect
     },
     activated () {
       this.getDataList()
@@ -125,6 +117,7 @@ export default {
             ...this.query
           })
         }).then(({data}) => {
+          console.log(data.list)
           this.dataList = data.list
           this.dataListLoading = false
         })

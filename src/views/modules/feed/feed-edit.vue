@@ -6,36 +6,25 @@
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm"
              label-width="80px">
       <el-form-item  label="名称" prop="name">
-       <el-input v-model="dataForm.name" placeholder="请输入单位名称"></el-input>
+       <el-input v-model="dataForm.name" placeholder="请输入饲料名称"></el-input>
       </el-form-item>
-      <el-form-item  label="英文名" prop="nameEn">
-        <el-input v-model="dataForm.nameEn" placeholder="请输入英文名"></el-input>
+      <el-form-item  label="流水号" prop="num">
+        <el-input v-model="dataForm.num" placeholder="请输入流水号"></el-input>
       </el-form-item>
-      <el-form-item  label="编码" prop="code">
-        <el-input v-model="dataForm.code" placeholder="请输入编码"></el-input>
+      <el-form-item  label="营养成分" prop="component">
+        <el-input v-model="dataForm.component" placeholder="请输入营养成分"></el-input>
       </el-form-item>
-      <el-form-item  label="备注" prop="memo">
-        <el-input v-model="dataForm.memo" placeholder="请输入备注"></el-input>
+      <el-form-item  label="说明" prop="explain">
+        <el-input v-model="dataForm.exp" placeholder="请输入说明"></el-input>
       </el-form-item>
-      <el-form-item  label="负责人" prop="headMan">
-        <el-input v-model="dataForm.headMan" placeholder="请输入负责人"></el-input>
+      <el-form-item  label="饲料厂" prop="deptId">
+        <dept-select :required="true" :filter="DeptType.FEED.code" v-model="dataForm.deptId"/>
       </el-form-item>
-      <el-form-item  label="联系电话" prop="tel">
-        <el-input v-model="dataForm.tel" placeholder="请输入联系电话"></el-input>
+      <el-form-item v-if="dataForm.id" label="创建时间">
+       {{dataForm.createTime}}
       </el-form-item>
-      <el-form-item  label="部门职能" prop="functions">
-        <!--<el-input v-model="dataForm.functions" placeholder="请输入部门职能"></el-input>-->
-        <el-select v-model="dataForm.functions" placeholder="部门职能">
-          <el-option
-                  v-for="item in options"
-                  :key="item.code"
-                  :label="item.name"
-                  :value="item.code">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item  label="联系地址" prop="address">
-        <el-input v-model="dataForm.address" placeholder="请输入联系地址"></el-input>
+      <el-form-item v-if="dataForm.modified" label="修改时间">
+        {{dataForm.modified}}
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -47,46 +36,36 @@
 
 <script>
   import {DeptType} from '@/utils'
-const options = Object.values(DeptType)
+  import deptSelect from '@/components/deptSelect'
 export default {
+  components: {
+    deptSelect
+  },
     data () {
       return {
         visible: false,
         dataForm: {
           id: 0,
           name: '',
-          nameEn: '',
-          code: '',
-          parentId: 0,
-          memo: '',
-          headMan: '',
-          tel: '',
-          functions: 0,
-          address: ''
+          num: '',
+          component: '',
+          exp: '',
+          deptId: undefined
         },
-        options,
+        DeptType,
         dataRule: {
           name: [
-            {required: true, message: '单位名称不能为空', trigger: 'blur'}
+            {required: true, message: '饲料名称不能为空', trigger: 'blur'}
           ],
-          nameEn: [
-            {required: true, message: '英文名不能为空', trigger: 'blur'}
+          num: [
+            {required: true, message: '流水号不能为空', trigger: 'blur'}
           ],
-          code: [
-            {required: true, message: '单位编码不能为空', trigger: 'blur'}
+          component: [
+            {required: true, message: '营养成分不能为空', trigger: 'blur'}
           ],
-          headMan: [
-            {required: true, message: '负责人不能为空', trigger: 'blur'}
+          deptId: [
+            {required: true, message: '饲料厂不能为空', trigger: 'blur'}
           ],
-          tel: [
-            {required: true, message: '联系电话不能为空', trigger: 'blur'}
-          ],
-          address: [
-            {required: true, message: '联系地址不能为空', trigger: 'blur'}
-          ],
-          functions: [
-            {required: true, message: '部门职能不能为空', trigger: 'blur'}
-          ]
         }
       }
     },
@@ -99,16 +78,12 @@ export default {
         this.dataForm.id = id
         if (this.dataForm.id === undefined) { // 新增
           this.dataForm = {
-            id: undefined,
+            id: 0,
             name: '',
-            nameEn: '',
-            code: '',
-            parentId: 0,
-            memo: '',
-            headMan: '',
-            tel: '',
-            functions: '',
-            address: ''
+            num: '',
+            component: '',
+            exp: '',
+            deptId: undefined
           }
         } else { // 修改
           this.$http({
@@ -116,7 +91,7 @@ export default {
             method: 'post',
             data: {
               id: this.dataForm.id,
-              identify: 'dept'
+              identify: 'feed'
             }
           }).then(res => {
             Object.assign(this.dataForm, res.data)
@@ -128,12 +103,11 @@ export default {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(`/biz/base/${!this.dataForm.id ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`/biz/feed/${!this.dataForm.id ? 'save' : 'update'}`),
               method: 'post',
               data: this.$http.adornData({
                 ...this.dataForm,
                 'id': this.dataForm.id || undefined,
-                identify: 'dept'
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
